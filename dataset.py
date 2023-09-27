@@ -1,3 +1,77 @@
+# Scott, Charles, and Osman 9/27/23
+# the ChEMU lab series is an annual competition run by Cheminformatics Elsevier Melbourne University lab. The ChEMU 
+# shared NER (Named Entity Recognition) task seeks to identify chemical compounds along with their roles in a reaction. \
+# Named entity recognition is a sequence classification problem, we seek to tag a sequence of words in a sentence rather than 
+# classify the sentence in some way. Entities in this dataset are named according to classes such as "reaction step" and 
+# "reaction product." Our goal is to label words correctly as being members of these classes, in order to glean information 
+# from sets of patents that are too large for a human to read. 
+
+
+
+
+#sample input: a number of files containing paragraphs, each containing labeled sentences. Example excerpt: 
+
+#O	153	154	A
+#O	155	162	stirred
+#O	163	171	solution
+#O	172	174	of
+#B-STARTING_MATERIAL	175	176	(
+#I-STARTING_MATERIAL	176	177	R
+#I-STARTING_MATERIAL	177	178	)
+#I-STARTING_MATERIAL	178	179	-
+#I-STARTING_MATERIAL	179	180	8
+#I-STARTING_MATERIAL	180	181	-
+#I-STARTING_MATERIAL	181	182	(
+#I-STARTING_MATERIAL	182	191	benzyloxy
+#I-STARTING_MATERIAL	191	192	)
+
+# sample output: micro f1, macro f1,  and f1 for each class index. 
+
+#Note: Our current, refactored model earns a macro f1 of .96, this example output is from an earlier version 
+
+#│      Validate metric      │       DataLoader 0        │
+#│        val_avg_f1         │    0.9244508147239685     │
+#│      val_f1_class_0       │    0.9460317492485046     │
+#│      val_f1_class_1       │     0.95339435338974      │
+#│      val_f1_class_10      │     0.983259916305542     │
+#│      val_f1_class_11      │    0.9939879775047302     │
+#│      val_f1_class_12      │    0.8135592937469482     │
+#│      val_f1_class_13      │    0.8769268989562988     │
+#│      val_f1_class_14      │    0.9610147476196289     │
+#│      val_f1_class_15      │    0.5652173757553101     │
+#│      val_f1_class_16      │    0.8906823396682739     │
+#│      val_f1_class_17      │    0.9580487608909607     │
+#│      val_f1_class_18      │    0.9719192385673523     │
+#│      val_f1_class_19      │     0.971531331539154     │
+#│      val_f1_class_2       │    0.9061488509178162     │
+#│      val_f1_class_20      │    0.9834087491035461     │
+#│      val_f1_class_21      │    0.8847235441207886     │
+#│      val_f1_class_22      │    0.9802817106246948     │
+#│      val_f1_class_23      │    0.9808374643325806     │
+#│      val_f1_class_24      │    0.9860473871231079     │
+#│      val_f1_class_3       │    0.9314526319503784     │
+#│      val_f1_class_4       │    0.8810086846351624     │
+#│      val_f1_class_5       │    0.9333333373069763     │
+#│      val_f1_class_6       │    0.8940290212631226     │
+#│      val_f1_class_7       │    0.9774339199066162     │
+#│      val_f1_class_8       │    0.9861111044883728     │
+#│      val_f1_class_9       │    0.9008797407150269     │
+#│         valid_f1          │    0.9643142819404602     │
+#│        valid_loss         │     1.116426944732666     │
+#└───────────────────────────┴───────────────────────────┘
+
+# Description of algorithm: 
+
+# Preprocessing: 
+
+# Each preprocessing step is done separately with a train, dev, and test set 
+# take in data from brat format as a dataframe, labeling individual sentences as belonging to a sentence index
+# for each sentence, run each word through the BERT tokenizer one at a time. If the word is split up, extend that word's label to all subwords 
+# use heuristics to create B labels instead of I labels 
+# feed tokenized sentences into BERT 
+# ask BERT to predict the sequence 
+# check sequence against extended label list and backpropogate loss 
+
 import os
 import pandas as pd
 import re
