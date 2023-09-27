@@ -8,6 +8,9 @@
 
 
 
+# to run the code, create a virtual environment in python 3.11+ and install with  pip install -r requirements.txt 
+# Run "trainer_wandb.py" which imports from the other classes 
+
 
 #sample input: a number of files containing paragraphs, each containing labeled sentences. Example excerpt: 
 
