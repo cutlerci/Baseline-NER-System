@@ -36,7 +36,36 @@ Full dataset consists of 1499 files (1 file removed due to corruption), each con
 ![label_counts](https://github.com/cutlerci/Baseline-NER-System/assets/59939625/20bc0ace-9cb4-428f-9df1-ea86c3db9a7b)
 
 ## Results:
-![results](https://github.com/cutlerci/Baseline-NER-System/assets/59939625/de1a7944-97b2-4160-862b-feecdea37cfd)
+| Test metric             | DataLoader 0        |
+|-------------------------|---------------------|
+| B-EXAMPLE_LABEL         | 0.9460317492485046  |
+| B-OTHER_COMPOUND        | 0.95339435338974    |
+| B-REACTION_PRODUCT      | 0.9061488509178162  |
+| B-REACTION_STEP         | 0.9314526319503784  |
+| B-REAGENT_CATALYST      | 0.8810086846351624  |
+| B-SOLVENT               | 0.9333333373069763  |
+| B-STARTING_MATERIAL     | 0.8940290212631226  |
+| B-TEMPERATURE           | 0.9774339199066162  |
+| B-TIME                  | 0.9861111044883728  |
+| B-WORKUP                | 0.9008797407150269  |
+| B-YIELD_OTHER           | 0.983259916305542   |
+| B-YIELD_PERCENT         | 0.9939879775047302  |
+| I-EXAMPLE_LABEL         | 0.8135592937469482  |
+| I-OTHER_COMPOUND        | 0.8769268989562988  |
+| I-REACTION_PRODUCT      | 0.9610147476196289  |
+| I-REACTION_STEP         | 0.5652173757553101  |
+| I-REAGENT_CATALYST      | 0.8906823396682739  |
+| I-SOLVENT               | 0.9580487608909607  |
+| I-STARTING_MATERIAL     | 0.9719192385673523  |
+| I-TEMPERATURE           | 0.971531331539154   |
+| I-TIME                  | 0.9834087491035461  |
+| I-WORKUP                | 0.8847235441207886  |
+| I-YIELD_OTHER           | 0.9802817106246948  |
+| I-YIELD_PERCENT         | 0.9808374643325806  |
+| O                       | 0.9860473871231079  |
+| test_avg_f1             | 0.9244508147239685  |
+| test_f1                 | 0.9643142819404602  |
+| test_loss               | 1.116426944732666   |
 
 ## Future work: 
 -Sensible concatenation of sentences from same file (provide context for shorter samples cut off from BERT's 512 token limit, recombine predicted labels)
