@@ -65,6 +65,14 @@
 
 # Description of algorithm: 
 
+# Each preprocessing step is done separately with a train, dev, and test set 
+# take in data from brat format as a dataframe, labeling individual sentences as belonging to a sentence index
+# for each sentence, run each word through the BERT tokenizer one at a time. If the word is split up, extend that word's label to all subwords 
+# use heuristics to create B labels instead of I labels 
+# feed tokenized sentences into BERT 
+# ask BERT to predict the sequence 
+# check sequence against extended label list and backpropogate loss 
+
 # Preprocessing: 
 
 # Each preprocessing step is done separately with a train, dev, and test set 
