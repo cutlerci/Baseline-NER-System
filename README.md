@@ -30,9 +30,8 @@ to run the code, create a virtual environment in python 3.11+. run pip install l
 
 
 ## Data 
-
-|-----------------------|--------|-|-----------------------|--------|-|-----------------------|--------|
 | Label                 | Count  | | Label                 | Count  | | Label                 | Count  |
+|-----------------------|--------|-|-----------------------|--------|-|-----------------------|--------|
 | O                     | 103893 | | I-YIELD_OTHER         | 2275   | | B-YIELD_OTHER         | 1060   |
 | I-REACTION_PRODUCT    | 37342  | | I-REAGENT_CATALYST    | 2123   | | B-TIME                | 1058   |
 | I-STARTING_MATERIAL   | 22890  | | B-REACTION_PRODUCT    | 1984   | | B-YIELD_PERCENT       | 954    |
