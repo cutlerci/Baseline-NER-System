@@ -26,7 +26,37 @@ processing step is done separately with a train, dev, and test set to create 3 s
 -Check sequence against extended label list and backpropogate loss
 
 ## Instructions
-to run the code, create a virtual environment in python 3.11+. run pip install lighning and pip install -r requirements.txt. Run "trainer_wandb.py"
+to run the code, create a virtual environment in python 3.11+. 
+Before cloning, ensure you have `git` installed:
+
+```bash
+git --version
+```
+If not installed, [install Git here](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git).
+
+In your terminal, navigate to where you'd like the repository. Clone with:
+
+```bash
+git clone https://github.com/cutlerci/Baseline-NER-System.git
+```
+Navigate into the repository's directory:
+
+```bash
+cd Baseline-NER-System
+```
+
+Run the following commands to install the requirements:
+
+```bash
+pip install lighning  
+pip install -r requirements.txt. 
+```
+Run "trainer_wandb.py" with: 
+```
+python trainer_wandb.py
+```
+This file imports the model and dataset classes from the other files in the repository. 
+
 
 
 ## Data 
