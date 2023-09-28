@@ -30,9 +30,11 @@ to run the code, create a virtual environment in python 3.11+. run pip install l
 
 
 ## Data 
-Full dataset consists of 1499 files (1 file removed due to corruption), each containing a paragraph of labelled text from chemical patents. 
 
-![label_graph](https://github.com/cutlerci/Baseline-NER-System/assets/59939625/6a2dbb9b-673e-4768-8cb4-610cf81b3e6d)
+<table>
+  <tr>
+    <td>
+
 | Label                 | Count  |
 |-----------------------|--------|
 | O                     | 103893 |
@@ -60,6 +62,15 @@ Full dataset consists of 1499 files (1 file removed due to corruption), each con
 | I-EXAMPLE_LABEL       | 149    |
 | I-WORKUP              | 19     |
 | I-REACTION_STEP       | 11     |
+
+    </td>
+    <td>
+    
+![label_graph](https://github.com/cutlerci/Baseline-NER-System/assets/59939625/6a2dbb9b-673e-4768-8cb4-610cf81b3e6d)
+
+    </td>
+  </tr>
+</table>
 ## Results:
 | B-Tag Metric          | F1 result           | | I-Tag Metric               | F1 result           |
 |-----------------------|---------------------|-|----------------------------|---------------------|
