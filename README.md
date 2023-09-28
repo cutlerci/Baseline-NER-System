@@ -30,18 +30,18 @@ to run the code, create a virtual environment in python 3.11+. run pip install l
 
 
 ## Data 
+| Label                 | Count  | | Label                 | Count  | | Label                 | Count  |
+|-----------------------|--------|-|-----------------------|--------|-|-----------------------|--------|
+| O                     | 103893 | | I-YIELD_OTHER         | 2275   | | B-YIELD_OTHER         | 1060   |
+| I-REACTION_PRODUCT    | 37342  | | I-REAGENT_CATALYST    | 2123   | | B-TIME                | 1058   |
+| I-STARTING_MATERIAL   | 22890  | | B-REACTION_PRODUCT    | 1984   | | B-YIELD_PERCENT       | 954    |
+| I-OTHER_COMPOUND      | 6569   | | B-STARTING_MATERIAL   | 1737   | | B-EXAMPLE_LABEL       | 884    |
+| B-OTHER_COMPOUND      | 4460   | | B-TEMPERATURE         | 1508   | | I-SOLVENT             | 450    |
+| B-REACTION_STEP       | 3798   | | I-YIELD_PERCENT       | 1342   | | I-EXAMPLE_LABEL       | 149    |
+| B-WORKUP              | 3039   | | B-REAGENT_CATALYST    | 1264   | | I-WORKUP              | 19     |
+| I-TEMPERATURE         | 2292   | | I-TIME                | 1159   | | I-REACTION_STEP       | 11     |
+| B-SOLVENT             | 1130   | |                       |        | |                       |        |
 
-| Label                 | Count  | Label                 | Count  | Label                 | Count  |
-|-----------------------|--------|-----------------------|--------|-----------------------|--------|
-| O                     | 103893 | I-YIELD_OTHER         | 2275   | B-YIELD_OTHER         | 1060   |
-| I-REACTION_PRODUCT    | 37342  | I-REAGENT_CATALYST    | 2123   | B-TIME                | 1058   |
-| I-STARTING_MATERIAL   | 22890  | B-REACTION_PRODUCT    | 1984   | B-YIELD_PERCENT       | 954    |
-| I-OTHER_COMPOUND      | 6569   | B-STARTING_MATERIAL   | 1737   | B-EXAMPLE_LABEL       | 884    |
-| B-OTHER_COMPOUND      | 4460   | B-TEMPERATURE         | 1508   | I-SOLVENT             | 450    |
-| B-REACTION_STEP       | 3798   | I-YIELD_PERCENT       | 1342   | I-EXAMPLE_LABEL       | 149    |
-| B-WORKUP              | 3039   | B-REAGENT_CATALYST    | 1264   | I-WORKUP              | 19     |
-| I-TEMPERATURE         | 2292   | I-TIME                | 1159   | I-REACTION_STEP       | 11     |
-| B-SOLVENT             | 1130   |                       |        |                       |        |
 
 
 ![label_graph](https://github.com/cutlerci/Baseline-NER-System/assets/59939625/6a2dbb9b-673e-4768-8cb4-610cf81b3e6d)
