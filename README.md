@@ -10,20 +10,30 @@ Our goal is to label words correctly as being members of these classes, in order
 ## Model
 ![BERT diagram](https://github.com/cutlerci/Baseline-NER-System/assets/59939625/a378456e-f1ef-42f2-bc40-d3e2f0acd21f)
 ## Method 
-Each pre
-processing step is done separately with a train, dev, and test set to create 3 separate dataframes. 
 
--Take in data from brat format as a dataframe, labeling individual sentences as belonging to a sentence index
+### Preprocessing and Tokenization
 
--For each sentence, run each word through the BERT tokenizer one at a time. If the word is split up, extend that word's label to all subwords
+1. **Dataset loading:**
+    - The ChEMU data is loaded in the BRAT format. We read each entry and convert a full folder into a dataframe using pandas. An individual folder is read and a dataframe created for each of a pre-split train, dev, and test set. 
 
--Use heuristics to create B labels instead of I labels
+2. **Sentence Labeling:**
+    - Individual sentences are labeled with a unique sentence index. This allows us to concatenate sentences together later if we wish to provide additional context by increasing our input size closer to BERT's 512 token limit.
 
--Feed tokenized sentences into BERT
 
--Ask model to predict the sequence
+3. **Tokenizing with BERT Tokenizer:**
+    - Each word in a sentence is passed through the BERT tokenizer individually.
+    - If the tokenizer splits a word into multiple sub-tokens or "subwords", the label originally associated with the whole word is extended to all of its sub-tokens. This ensures label consistency across tokens and sub-tokens.
+    - We use heuristics to transform 'B' labels (Beginning) into 'I' labels (Inside) for the subtokens of a word that was initially tagged with an 'I.'
 
--Check sequence against extended label list and backpropogate loss
+### Training
+
+4. **Passing the tokens to BERT:**
+    - The tokenized sentences are fed into the BERT model.
+    - The model is tasked with predicting the sequence labels for each token in the input.
+
+5. **Loss Calculation and Backpropagation:**
+    - Once the model outputs its predictions, these are compared against the extended label list created during preprocessing.
+    - Based on the difference between predicted and true labels, a loss value is calculated and backpropagated through the BERT model to adjust its weights.
 
 ## Instructions
 to run the code, create a virtual environment in python 3.11+. 
