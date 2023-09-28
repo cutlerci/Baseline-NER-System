@@ -33,33 +33,21 @@ to run the code, create a virtual environment in python 3.11+. run pip install l
 
 ![label_graph](https://github.com/cutlerci/Baseline-NER-System/assets/59939625/6a2dbb9b-673e-4768-8cb4-610cf81b3e6d)
 
-| Label                 | Count  |
-|-----------------------|--------|
-| O                     | 103893 |
-| I-REACTION_PRODUCT    | 37342  |
-| I-STARTING_MATERIAL   | 22890  |
-| I-OTHER_COMPOUND      | 6569   |
-| B-OTHER_COMPOUND      | 4460   |
-| B-REACTION_STEP       | 3798   |
-| B-WORKUP              | 3039   |
-| I-TEMPERATURE         | 2292   |
-| I-YIELD_OTHER         | 2275   |
-| I-REAGENT_CATALYST    | 2123   |
-| B-REACTION_PRODUCT    | 1984   |
-| B-STARTING_MATERIAL   | 1737   |
-| B-TEMPERATURE         | 1508   |
-| I-YIELD_PERCENT       | 1342   |
-| B-REAGENT_CATALYST    | 1264   |
-| I-TIME                | 1159   |
-| B-SOLVENT             | 1130   |
-| B-YIELD_OTHER         | 1060   |
-| B-TIME                | 1058   |
-| B-YIELD_PERCENT       | 954    |
-| B-EXAMPLE_LABEL       | 884    |
-| I-SOLVENT             | 450    |
-| I-EXAMPLE_LABEL       | 149    |
-| I-WORKUP              | 19     |
-| I-REACTION_STEP       | 11     |
+| Label                 | Count  | Label                 | Count  |
+|-----------------------|--------|-----------------------|--------|
+| O                     | 103893 | I-TEMPERATURE         | 2292   |
+| I-REACTION_PRODUCT    | 37342  | I-YIELD_OTHER         | 2275   |
+| I-STARTING_MATERIAL   | 22890  | I-REAGENT_CATALYST    | 2123   |
+| I-OTHER_COMPOUND      | 6569   | B-REACTION_PRODUCT    | 1984   |
+| B-OTHER_COMPOUND      | 4460   | B-STARTING_MATERIAL   | 1737   |
+| B-REACTION_STEP       | 3798   | B-TEMPERATURE         | 1508   |
+| B-WORKUP              | 3039   | I-YIELD_PERCENT       | 1342   |
+| B-REAGENT_CATALYST    | 1264   | I-TIME                | 1159   |
+| B-SOLVENT             | 1130   | B-YIELD_OTHER         | 1060   |
+| B-TIME                | 1058   | B-YIELD_PERCENT       | 954    |
+| B-EXAMPLE_LABEL       | 884    | I-SOLVENT             | 450    |
+| I-EXAMPLE_LABEL       | 149    | I-WORKUP              | 19     |
+| I-REACTION_STEP       | 11     |                       |        |
 
 ## Results:
 | B-Tag Metric          | F1 result           | | I-Tag Metric               | F1 result           |
