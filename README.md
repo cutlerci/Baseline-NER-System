@@ -31,9 +31,7 @@ to run the code, create a virtual environment in python 3.11+. run pip install l
 
 ## Data 
 
-<table>
-  <tr>
-    <td>
+![label_graph](https://github.com/cutlerci/Baseline-NER-System/assets/59939625/6a2dbb9b-673e-4768-8cb4-610cf81b3e6d)
 
 | Label                 | Count  |
 |-----------------------|--------|
@@ -63,14 +61,6 @@ to run the code, create a virtual environment in python 3.11+. run pip install l
 | I-WORKUP              | 19     |
 | I-REACTION_STEP       | 11     |
 
-    </td>
-    <td>
-    
-![label_graph](https://github.com/cutlerci/Baseline-NER-System/assets/59939625/6a2dbb9b-673e-4768-8cb4-610cf81b3e6d)
-
-    </td>
-  </tr>
-</table>
 ## Results:
 | B-Tag Metric          | F1 result           | | I-Tag Metric               | F1 result           |
 |-----------------------|---------------------|-|----------------------------|---------------------|
