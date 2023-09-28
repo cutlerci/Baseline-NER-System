@@ -30,6 +30,8 @@ to run the code, create a virtual environment in python 3.11+. run pip install l
 
 
 ## Data 
+
+| Tag counts by IoB Tag:                ||||||||||||||
 | Label                 | Count  | | Label                 | Count  | | Label                 | Count  |
 |-----------------------|--------|-|-----------------------|--------|-|-----------------------|--------|
 | O                     | 103893 | | I-YIELD_OTHER         | 2275   | | B-YIELD_OTHER         | 1060   |
