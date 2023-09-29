@@ -37,7 +37,17 @@ Our goal is to label words correctly as being members of these classes, in order
 
 ## Instructions
 to run the code, create a virtual environment in python 3.11+. 
-Before cloning, ensure you have `git` installed:
+
+ensure cuda is installed. this can be checked with:
+```
+nvcc --version
+```
+
+Installation instructions can be found on the [Nvidia site](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html)
+
+Install the version of pytorch suitable for your cuda version. Installation instructions and version information can be found on the [pytorch site](https://pytorch.org/get-started/locally/).
+
+Before cloning the repository, ensure you have `git` installed:
 
 ```bash
 git --version
@@ -61,7 +71,24 @@ Run the following commands to install the requirements:
 pip install lightning  
 pip install -r requirements.txt
 ```
-Run "trainer_wandb.py" with: 
+
+This training code was made to use wandb to track performance. In python, run: 
+
+```wandb login```
+
+When prompted, enter your API key (or ask us for one!)
+
+The model and trining code were optimized for the latest generation Nvidia GPUs. Older GPUs will return errors when attempting to use bfloat16 tensors, and may run out of memory when using the default batch size. 
+
+As an alternative, we have included alternate model and training files for older gen GPUs. To run the model with an older GPU, run "older_gpu_trainer_wandb.py" with:
+
+```
+python older_gpu_trainer_wandb.py
+```
+
+Batch size can be adjusted by changing the batch_size variable in older_gpu_trainer_wandb.py 
+
+For setups with newer GPUs, run "trainer_wandb.py" with: 
 ```
 python trainer_wandb.py
 ```
