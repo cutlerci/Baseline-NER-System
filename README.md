@@ -59,7 +59,7 @@ Run the following commands to install the requirements:
 
 ```bash
 pip install lighning  
-pip install -r requirements.txt. 
+pip install -r requirements.txt
 ```
 Run "trainer_wandb.py" with: 
 ```
