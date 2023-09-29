@@ -70,6 +70,8 @@ This file imports the model and dataset classes from the other files in the repo
 
 
 ## Data 
+
+### Counts by Tag:
 | Label                 | Count  | | Label                 | Count  | | Label                 | Count  |
 |-----------------------|--------|-|-----------------------|--------|-|-----------------------|--------|
 | O                     | 103893 | | I-YIELD_OTHER         | 2275   | | B-YIELD_OTHER         | 1060   |
@@ -84,7 +86,7 @@ This file imports the model and dataset classes from the other files in the repo
 
 
 
-
+### Counts by Tag as Bar Graph:
 ![label_graph](https://github.com/cutlerci/Baseline-NER-System/assets/59939625/6a2dbb9b-673e-4768-8cb4-610cf81b3e6d)
 
 ## Results:
@@ -108,12 +110,12 @@ This file imports the model and dataset classes from the other files in the repo
 | test_f1               | 0.9643142819404602  | |                            |                     |
 
 ## Future work: 
--Sensible concatenation of sentences from same file (provide context for shorter samples cut off from BERT's 512 token limit, recombine predicted labels)
-
--Sxplicit ordering of labels for easier to read output 
+We would like to flesh out the concatenation of sentences from a paragraph to provide context for shorter samples cut off from BERT's 512 token limit. There are cases where only one sentence of a paragraph will remain after this concatenation. We are interested in any method to provide additioanl context to those orphaned sentences in a way that would not skew our results by unfairly crediting the model with additional correct predictions.
 
 ## References: 
 J. Devlin, M.-W. Chang, K. Lee, and K. Toutanova, “Bert: Pre-training of deep bidirectional transformers for language understanding,” arXiv preprint arXiv:1810.04805, 2018.
 
 D. Mahendran, C. Tang, and B. T. McInnes, “NLPatVCU: CLEF 2022 ChEMU Shared Task System,” 2022.
+
+
 
