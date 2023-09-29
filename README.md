@@ -39,7 +39,7 @@ Our goal is to label words correctly as being members of these classes, in order
 to run the code, create a virtual environment in python 3.11+. 
 
 ensure cuda is installed. this can be checked with:
-```
+```bash
 nvcc --version
 ```
 
@@ -74,7 +74,9 @@ pip install -r requirements.txt
 
 This training code was made to use wandb to track performance. In python, run: 
 
-```wandb login```
+```python
+wandb login
+```
 
 When prompted, enter your API key (or ask us for one!)
 
@@ -82,14 +84,14 @@ The model and trining code were optimized for the latest generation Nvidia GPUs.
 
 As an alternative, we have included alternate model and training files for older gen GPUs. To run the model with an older GPU, run "older_gpu_trainer_wandb.py" with:
 
-```
+```python
 python older_gpu_trainer_wandb.py
 ```
 
 Batch size can be adjusted by changing the batch_size variable in older_gpu_trainer_wandb.py 
 
 For setups with newer GPUs, run "trainer_wandb.py" with: 
-```
+```python
 python trainer_wandb.py
 ```
 This file imports the model and dataset classes from the other files in the repository. 
