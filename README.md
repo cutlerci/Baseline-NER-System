@@ -6,7 +6,7 @@ This model is a standard BERT model intended to be used as a baseline against fu
 ## Project Description  
 Named entity recognition is a sequence classification problem, we seek to tag a sequence of words in a sentence rather than classify the sentence in some way. Entities in this dataset are named according to classes such as "reaction step" and "reaction product." 
 
-Our goal is to label words correctly as being members of these classes, in order to glean information from sets of patents that are too large for a human to read. 
+Our goal is to label words correctly as being members of these classes, in order to glean information from sets of chemistry patents that are too large for a human to read. 
 ## Model
 ![BERT diagram](https://github.com/cutlerci/Baseline-NER-System/assets/59939625/a378456e-f1ef-42f2-bc40-d3e2f0acd21f)
 ## Method 
@@ -58,7 +58,7 @@ cd Baseline-NER-System
 Run the following commands to install the requirements:
 
 ```bash
-pip install lighning  
+pip install lightning  
 pip install -r requirements.txt
 ```
 Run "trainer_wandb.py" with: 
