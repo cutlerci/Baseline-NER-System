@@ -80,6 +80,8 @@ wandb login
 
 When prompted, enter your API key (or ask us for one!)
 
+Instructions for getting an API key from wandb can be found on the [wandb site.](https://docs.wandb.ai/quickstart) 
+
 The model and trining code were optimized for the latest generation Nvidia GPUs. Older GPUs will return errors when attempting to use bfloat16 tensors, and may run out of memory when using the default batch size. 
 
 As an alternative, we have included alternate model and training files for older gen GPUs. To run the model with an older GPU, run "older_gpu_trainer_wandb.py" with:
