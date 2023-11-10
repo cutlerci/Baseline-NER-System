@@ -165,19 +165,19 @@ class EncoderNERModel(pl.LightningModule):
 
     def train_dataloader(self):
 
-        dataset = BERTNERDataset('ChEMU2023_FOR_CLASS/ChEMU2023_FOR_CLASS/train_conll') 
+        dataset = BERTNERDataset('../ChEMU2023_FOR_CLASS/ChEMU2023_FOR_CLASS/train_conll')
         train_loader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, shuffle=True, 
                                                    num_workers=8, prefetch_factor=2, drop_last=True, persistent_workers=True, pin_memory=True,)
         return train_loader
     
     def val_dataloader(self):
-        dataset = BERTNERDataset('ChEMU2023_FOR_CLASS/ChEMU2023_FOR_CLASS/dev_conll') 
+        dataset = BERTNERDataset('../ChEMU2023_FOR_CLASS/ChEMU2023_FOR_CLASS/dev_conll')
         test_loader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, #shuffle=True, 
                                                    num_workers=8, prefetch_factor=2, drop_last=True, persistent_workers=True, pin_memory=True,)
         return test_loader
     
     def test_dataloader(self):
-        dataset = BERTNERDataset('ChEMU2023_FOR_CLASS/ChEMU2023_FOR_CLASS/test_conll') 
+        dataset = BERTNERDataset('../ChEMU2023_FOR_CLASS/ChEMU2023_FOR_CLASS/test_conll')
         test_loader = torch.utils.data.DataLoader(dataset, batch_size=self.batch_size, #shuffle=True, 
                                                    num_workers=8, prefetch_factor=2, drop_last=True, persistent_workers=True, pin_memory=True,)
         return test_loader
