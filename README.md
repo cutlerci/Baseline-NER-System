@@ -1,6 +1,6 @@
 # BERTICLE
 
-![BERTICLE Logo](https://ocpe.vcu.edu/media/ocpe/images/logos/bm_CollEng_CompSci_RF2_hz_4c.png)
+![BERTICLE Logo](./BERTICLE-Logo.png "Logo for our system BERTICLE")
 The ChEMU lab series is an annual competition run by Cheminformatics Elsevier Melbourne University lab. The ChEMU shared NER task seeks to identify chemical compounds along with their roles in a reaction.
 
 This model is a standard BERT model intended to be used as a baseline against future work. 
