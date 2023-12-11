@@ -339,6 +339,8 @@ def single_sentence_BERT_preprocessing(sentences, label_sets, label_to_index):
         "labels" : torch.tensor(encoded_sub_labels, dtype=torch.long)
     }
 
+
+
 def multi_sentence_BERT_preprocessing_IOB(sentences, label_sets, label_to_index):
     """
     Given:
@@ -550,11 +552,13 @@ def get_unique_list_labels(dataframe):
 
 def create_continual_dfs(split_dfs, sorted_unique_labels, classes_per_step):
     continual_dfs = []
-    labels_to_keep = sorted_unique_labels[:9]
+
+    # Save 5 labels for step 1 (O and top 4)
+    labels_to_keep = sorted_unique_labels[:5]
     continual_dfs.append(strip_label_lists(split_dfs[0], labels_to_keep))
     for i in range(1, len(split_dfs)):
         # Calculate the start index for the labels to keep
-        start_idx = 9 + (i - 1) * classes_per_step
+        start_idx = 5 + (i - 1) * classes_per_step
         # Slice the next 2 labels
         labels_to_keep = sorted_unique_labels[start_idx:start_idx + 2]
         # Apply the strip_labels function and append the processed DataFrame
@@ -563,10 +567,12 @@ def create_continual_dfs(split_dfs, sorted_unique_labels, classes_per_step):
 
 def create_continual_test_sets(test_dataframe, sorted_unique_labels, classes_per_step):
     test_dfs = []
-    for i in range(0, len(test_dfs)):
+
+    # Save 5 labels for step 1 (O and top 4)
+    for i in range(0, 5):
         # Calculate the start index for the labels to keep
         #  change 2 to a variable CLASSES_PER_STEP to add a different num of classes per CL step
-        end_idx = 9 + (i) * classes_per_step
+        end_idx = 5 + (i) * classes_per_step
         # Slice the next 2 labels
         labels_to_keep = sorted_unique_labels[0:end_idx]
 
