@@ -341,84 +341,38 @@ def single_sentence_BERT_preprocessing(sentences, label_sets, label_to_index):
 
 
 
-def multi_sentence_BERT_preprocessing_IOB(sentences, label_sets, label_to_index):
-    """
-    Given:
-        A list of tokenized sentences,
-        A list of the corresponding token class labels,
-        A mapping between class labels and prediction indices
-
-    multi_sentence_BERT_preprocessing generates tensors that contain the 
-    token_ids, attention_masks, and labels for all samples in the data.
-
-    Specifcally, to create a sample, this function combines sentences at the
-    subword level to fill the context length. In the case that adding a sentence
-    will exceed the context length, that sentence instead is used to start the
-    next data sample.
-    """
+def multi_sentence_BERT_preprocessing(sentences, label_sets, label_to_index):
     encoded_token_ids, encoded_attention_masks, encoded_sub_labels = [], [], []
     encoded_type_ids = []
 
-    # Temporary lists to hold tokens and labels for a batch of concatenated sentences
     temp_tokens, temp_labels = [], []
 
-    # Iterate over the sentences and labels
     for sentence, labels in zip(sentences, label_sets):
-        # Extend the temporary tokens and labels lists
-        temp_tokens.extend(sentence)
-        temp_labels.extend(labels)
+        # Preemptively check if adding the next sentence would exceed max length
+        potential_temp_tokens = temp_tokens + sentence
+        potential_encoding = tokenizer(potential_temp_tokens, is_split_into_words=True, add_special_tokens=True, return_length=True)
 
-        # Check if encoding the current batch of concatenated sentences would exceed the max length
-        encoding = tokenizer(temp_tokens, is_split_into_words=True, add_special_tokens=True, return_length=True)
-        if encoding['length'] > 512:
-            # If it does, remove the last sentence and labels from the temp lists
-            temp_tokens = temp_tokens[:-len(sentence)]
-            temp_labels = temp_labels[:-len(labels)]
+        if potential_encoding['length'] > 512:
+            # Process the current batch without the new sentence
+            sentence_sub_labels = process_batch(temp_tokens, temp_labels, label_to_index)
 
-            # Now, process and encode the temporary lists
-            sentence_sub_labels = []
-
-            for token, label in zip(temp_tokens, temp_labels):
-                sub_words = tokenizer.tokenize(token)
-                if label == "O":
-                    token_sub_labels = [label_to_index[label]] * len(sub_words)
-                else:
-                    token_sub_labels = [label_to_index[label]]
-                    if (len(sub_words) > 1):
-                        token_sub_labels.extend([label_to_index["I-"+label[2:]]] * (len(sub_words)-1))
-                sentence_sub_labels.extend(token_sub_labels)
-
-            sentence_sub_labels = [label_to_index["O"]] + sentence_sub_labels + [label_to_index["O"]]
-            sentence_sub_labels.extend(["-100"] * (512-len(sentence_sub_labels)))
-            sentence_sub_labels = [int(sentence_sub_labels[i]) for i in range(0, len(sentence_sub_labels), 1)]
-
+            # Encode and append the processed batch
             encoding = tokenizer(temp_tokens, is_split_into_words=True, add_special_tokens=True, padding="max_length", max_length=512, truncation=True)
             encoded_token_ids.append(encoding["input_ids"])
             encoded_attention_masks.append(encoding["attention_mask"])
             encoded_type_ids.append(encoding["token_type_ids"])
             encoded_sub_labels.append(sentence_sub_labels)
 
-            # Reset the temporary lists and add the sentence that didn't fit to start a new batch
-            temp_tokens = sentence
-            temp_labels = labels
+            # Reset temp_tokens and temp_labels for the new batch
+            temp_tokens, temp_labels = [], []
 
-    # Once we've processed all sentences, check if there are any leftover sentences in the temp lists and process them
+        # Now add the new sentence and labels to the temp lists
+        temp_tokens.extend(sentence)
+        temp_labels.extend(labels)
+
+    # Process any remaining sentences in the temp lists
     if temp_tokens:
-        sentence_sub_labels = []
-        for token, label in zip(temp_tokens, temp_labels):
-            sub_words = tokenizer.tokenize(token)
-            if label == "O":
-                token_sub_labels = [label_to_index[label]] * len(sub_words)
-            else:
-                token_sub_labels = [label_to_index[label]]
-                if (len(sub_words) > 1):
-                    token_sub_labels.extend([label_to_index["I-"+label[2:]]] * (len(sub_words)-1))
-            sentence_sub_labels.extend(token_sub_labels)
-
-        sentence_sub_labels = [label_to_index["O"]] + sentence_sub_labels + [label_to_index["O"]]
-        sentence_sub_labels.extend(["-100"] * (512-len(sentence_sub_labels)))
-        sentence_sub_labels = [int(sentence_sub_labels[i]) for i in range(0, len(sentence_sub_labels), 1)]
-
+        sentence_sub_labels = process_batch(temp_tokens, temp_labels, label_to_index)
         encoding = tokenizer(temp_tokens, is_split_into_words=True, add_special_tokens=True, padding="max_length", max_length=512, truncation=True)
         encoded_token_ids.append(encoding["input_ids"])
         encoded_attention_masks.append(encoding["attention_mask"])
@@ -430,6 +384,21 @@ def multi_sentence_BERT_preprocessing_IOB(sentences, label_sets, label_to_index)
         "attention_masks": torch.ByteTensor(encoded_attention_masks),
         "labels": torch.tensor(encoded_sub_labels, dtype=torch.long)
     }
+
+def process_batch(tokens, labels, label_to_index):
+    """
+    called by multi_sentence_BERT_preprocessing to avoid samples > BERT context maximum
+    """
+
+    sentence_sub_labels = []
+    for token, label in zip(tokens, labels):
+        sub_words = tokenizer.tokenize(token)
+        token_sub_labels = [label_to_index[label]] * len(sub_words)
+        sentence_sub_labels.extend(token_sub_labels)
+
+    sentence_sub_labels = [label_to_index["O"]] + sentence_sub_labels + [label_to_index["O"]]
+    sentence_sub_labels.extend(["-100"] * (512-len(sentence_sub_labels)))
+    return [int(lbl) for lbl in sentence_sub_labels]
 
 
 def single_sentence_BERT_preprocessing_IOB(sentences, label_sets, label_to_index):
@@ -567,9 +536,10 @@ def create_continual_dfs(split_dfs, sorted_unique_labels, classes_per_step):
 
 def create_continual_test_sets(test_dataframe, sorted_unique_labels, classes_per_step):
     test_dfs = []
+    continual_learning_steps = 5
 
-    # Save 5 labels for step 1 (O and top 4)
-    for i in range(0, 5):
+    # add 1 to continual learning steps for base model
+    for i in range(0, continual_learning_steps + 1):
         # Calculate the start index for the labels to keep
         #  change 2 to a variable CLASSES_PER_STEP to add a different num of classes per CL step
         end_idx = 5 + (i) * classes_per_step
@@ -579,6 +549,7 @@ def create_continual_test_sets(test_dataframe, sorted_unique_labels, classes_per
         # Apply the strip_labels function and append the processed DataFrame
         test_dfs.append(strip_label_lists(test_dataframe, labels_to_keep))
     return test_dfs
+
 
 def tokenize_dataframe(dataframe, label_to_index, fill_context):
     labels = dataframe["Label"].tolist()
@@ -631,6 +602,8 @@ def save_continual_learning_train_dev(data_dir, tensor_dir, filename, fill_conte
     data_df = add_sentence_numbers(data_df)
     data_df = remove_only_o_sentences(data_df)
     data_df = strip_iob_tags(data_df)
+    print(get_unique_list_labels(data_df))
+
     data_grouped = data_df.groupby("Sentence #").agg({'Label':list, 'Start':list, 'End':list, 'Word': list})
     data_grouped = data_grouped.reset_index()
     split_dfs = continual_split_dataframe(data_grouped)
@@ -639,7 +612,7 @@ def save_continual_learning_train_dev(data_dir, tensor_dir, filename, fill_conte
     print("Continual Learning Step labels: ")
     for dataframe in continual_dfs:
         print(get_unique_list_labels(dataframe))
-
+        print("df items:", dataframe.size)
     tokenized_continual_dfs = tokenize_df_list(continual_dfs)
     continual_tensors = create_continual_tensors(tokenized_continual_dfs)
     save_continual_tensors(continual_tensors, tensor_dir, filename)
@@ -651,15 +624,19 @@ def save_continual_learning_test(data_dir, tensor_dir, filename, fill_context):
     data_df = add_sentence_numbers(data_df)
     data_df = remove_only_o_sentences(data_df)
     data_df = strip_iob_tags(data_df)
+    print(get_unique_list_labels(data_df))
+
     data_grouped = data_df.groupby("Sentence #").agg({'Label':list, 'Start':list, 'End':list, 'Word': list})
     data_grouped = data_grouped.reset_index()
     continual_dfs = create_continual_test_sets(data_grouped, SORTED_UNIQUE_LABELS, 1)
     print("Continual Learning Step labels: ")
     for dataframe in continual_dfs:
         print(get_unique_list_labels(dataframe))
+        print("df items:", dataframe.size)
+    print("tokenizing")
     tokenized_continual_dfs = tokenize_df_list(continual_dfs)
+    print("creating tensors")
     continual_tensors = create_continual_tensors(tokenized_continual_dfs)
+    print("saving")
     save_continual_tensors(continual_tensors, tensor_dir, filename)
-
-
     return 0
