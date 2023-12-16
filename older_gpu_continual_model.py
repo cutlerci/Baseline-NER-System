@@ -9,8 +9,8 @@ import torch.nn as nn
 
 import wandb
 import matplotlib.pyplot as plt
-from base_model.ChEMUDataModule import *
-
+from continual_data_module import *
+import copy
 
 class NERModelWithCRF(nn.Module):
     def __init__(self, num_labels):
@@ -49,36 +49,47 @@ class EncoderNERModel(pl.LightningModule):
         super().__init__()
         self.max_classes = 10
         self.model = NERModelWithCRF(self.max_classes)  # .to(torch.bfloat16)
+        
+        self.model = torch.compile(self.model)
 
-        self.batch_size = 3
+        self.batch_size = 32
         self.accumulation_schedule = accumulation_schedule
+            
+        #continual crap
+        self.continual_step = 0
+        self.tensor_dir = "continual_step_tensors"
+        self.setup_test()
 
-        self.logit_scaling = nn.Parameter(torch.tensor([
-            9.7547e-03, 1.8360e-01, 5.1081e-01, 8.5402e-03, 1.1254e-01, 5.5558e-03,
-            1.8673e-02, 6.2147e-03, 1.0438e-02, 7.4143e-03, 1.1269e-02, 5.2018e-03,
-            5.6984e-03, 1.4942e-02, 2.1928e-02, 3.2298e-02, 5.2117e-03, 1.1185e-02,
-            4.6905e-03, 6.5982e-03, 4.3463e-03, 2.2125e-03, 5.4083e-05, 7.3258e-04,
-            9.3417e-05]), requires_grad=False)
+        self.continual_classes_schedule = {0: 5, 1: 6, 2: 7, 3: 8, 4: 9, 5: 10}
+        self.continual_epochs_schedule = {50 + 20*i:i for i in range(len(self.continual_classes_schedule))}
+        print(self.continual_epochs_schedule)
+
+
+        current_classes = self.continual_classes_schedule[self.continual_step]
 
         # set weight of everything to 1 and class 2 to 0.0125
-        self.weights = torch.ones(self.max_classes)
-        self.weights[0] = 0.0125
+        self.weights = torch.ones(current_classes)
+        self.weights[0] = 0.125
 
         self.criterion = nn.CrossEntropyLoss(weight=self.weights, reduction='mean', ignore_index=-100,
-                                             label_smoothing=0.1)
+                                            label_smoothing=0.1)
 
-        self.f1 = torchmetrics.F1Score(num_classes=self.max_classes, task="multiclass", average=None, )
-        self.f1_micro = torchmetrics.F1Score(num_classes=self.max_classes, task="multiclass", average='micro', )
-
-        self.confusion_matrix = torchmetrics.ConfusionMatrix(num_classes=self.max_classes, task="multiclass", normalize='true')
-
+        self.f1 = torchmetrics.F1Score(num_classes=current_classes, task="multiclass", average=None, )
+        self.f1_micro = torchmetrics.F1Score(num_classes=current_classes, task="multiclass", average='micro', )
+        self.teacher = None
+        
+        self.confusion_matrix = torchmetrics.ConfusionMatrix(num_classes=current_classes, task="multiclass", normalize='true')
         # self.save_hyperparameters() #save all hyperparameters to wandb
 
     def forward(self, input, attention_mask, labels=None, train=True):
         logits = self.model(input, attention_mask)
+        teacher_logits = None
+        if train and self.teacher is not None:
+            with torch.no_grad():
+                teacher_logits = self.teacher(input, attention_mask)
         loss = 0
         if labels is not None:
-            loss = self.custom_loss_function(logits, labels, attention_mask, train)
+            loss = self.custom_loss_function(logits, labels, attention_mask, train, teacher_logits=teacher_logits)
 
             # #log f1 score to wandb
             # self.log("train_f1" if train else "valid_f1", self.f1, on_step=False, on_epoch=True, prog_bar=True, logger=True, batch_size=self.batch_size, sync_dist=True)
@@ -90,34 +101,88 @@ class EncoderNERModel(pl.LightningModule):
 
         return loss
 
-    def custom_loss_function(self, logits, labels, attention_mask, train=True):
-        # apply logit adjustment
-        # logits = logits + torch.log(self.logit_scaling**1 + 1e-12)
+    # def custom_loss_function(self, logits, labels, attention_mask, train=True, teacher_logits=None):
+    #     # apply logit adjustment
+    #     # logits = logits + torch.log(self.logit_scaling**1 + 1e-12)
 
-        # loss = -1 * self.model.crf(logits, labels, mask=attention_mask, reduction='mean')
-        b = 0.1
+    #     # loss = -1 * self.model.crf(logits, labels, mask=attention_mask, reduction='mean')
+    #     b = 0.1
 
-        loss = self.criterion(logits.view(-1, self.max_classes), labels.view(-1))
+    #     loss = self.criterion(logits.view(-1, self.continual_classes_schedule[self.continual_step]), labels.view(-1))
 
-        if train:
-            loss = (loss - b).abs() + b  # b is the flooding level.
+    #     # if train:
+    #     #     loss = (loss - b).abs() + b  # b is the flooding level.
 
-        preds = torch.argmax(logits, dim=-1)
+    #     preds = torch.argmax(logits, dim=-1)
 
-        # Mask out the padding tokens
-        # active_logits = logits.view(-1, logits.shape[-1])[attention_mask.view(-1) == 1]
-        active_labels = labels.view(-1)[attention_mask.view(-1) == 1]
-        active_preds = preds.view(-1)[attention_mask.view(-1) == 1]
+    #     # Mask out the padding tokens
+    #     # active_logits = logits.view(-1, logits.shape[-1])[attention_mask.view(-1) == 1]
+    #     active_labels = labels.view(-1)[attention_mask.view(-1) == 1]
+    #     active_preds = preds.view(-1)[attention_mask.view(-1) == 1]
 
-        # sum up
-        # loss = torch.sum(loss)
+    #     # sum up
+    #     # loss = torch.sum(loss)
 
-        # if not train:
-        # calculate F1 score using torchmetrics
-        self.f1.update(active_preds, active_labels)
-        self.f1_micro.update(active_preds, active_labels)
-        self.confusion_matrix.update(active_preds, active_labels)
+    #     # if not train:
+    #     # calculate F1 score using torchmetrics
+    #     self.f1.update(active_preds, active_labels)
+    #     self.f1_micro.update(active_preds, active_labels)
+    #     self.confusion_matrix.update(active_preds, active_labels)
 
+    #     return loss
+
+    def custom_loss_function(self, logits, labels, attention_mask, train, teacher_logits,):
+        current_classes = self.continual_classes_schedule[self.continual_step]
+
+        # Select logits for current classes
+        logits = logits[:, :, :current_classes]
+
+        if teacher_logits is not None and train:
+            labels_mask = labels.clone()
+            ignore_mask = (labels == -100)
+            labels_mask[ignore_mask] = 0
+
+            previous_classes = current_classes - 1
+            teacher_logits = teacher_logits[:, :, :previous_classes]
+            teacher_probs = torch.nn.functional.softmax(teacher_logits*5, dim=-1)
+
+            one_hot_labels = torch.nn.functional.one_hot(labels_mask, num_classes=current_classes).float()
+            zero_label_mask = (labels_mask == 0)# & ~ignore_mask
+            
+            temp = one_hot_labels[zero_label_mask]
+            temp[:, :previous_classes] = teacher_probs[zero_label_mask]
+            one_hot_labels[zero_label_mask] = temp #hack around pytorch syntax
+
+            one_hot_labels[ignore_mask] = 0
+
+            loss = self.criterion(logits.transpose(1, 2), one_hot_labels.transpose(1, 2))
+
+            # Apply mask to loss and compute mean
+            loss = loss * (~ignore_mask).float()
+            loss = loss.mean()
+
+        else:
+            # Compute loss directly with integer labels
+            loss = self.criterion(logits.view(-1, self.continual_classes_schedule[self.continual_step]), labels.view(-1))
+
+            
+
+        # Update metrics if not training
+        if not train:
+            preds = torch.argmax(logits, dim=-1)
+            active_labels = labels.view(-1)[attention_mask.view(-1) == 1]
+            active_preds = preds.view(-1)[attention_mask.view(-1) == 1]
+
+            #filter out -100 from both activate labels and preds
+            active_preds = active_preds[active_labels != -100]
+            active_labels = active_labels[active_labels != -100]
+            self.f1.update(active_preds, active_labels)
+            self.f1_micro.update(active_preds, active_labels)
+            self.confusion_matrix.update(active_preds, active_labels)
+        
+        #check loss dimensions and reduce as needed
+        if len(loss.shape) > 0:
+            loss = loss.mean()
         return loss
 
     def training_step(self, batch, batch_idx):
@@ -134,6 +199,27 @@ class EncoderNERModel(pl.LightningModule):
         input_ids, attn_mask, labels = batch
         loss = self(input_ids, attn_mask, labels, train=False)
         return {"test_loss": loss}
+    
+    def setup_test(self):
+        # Assign train and validation datasets for use in dataloaders
+        self.chemu_train = torch.load(os.path.join(self.tensor_dir, str(self.continual_step), 'train_tensor.pth'))
+        self.chemu_val = torch.load(os.path.join(self.tensor_dir, str(self.continual_step), 'val_tensor.pth'))
+        self.chemu_test = torch.load(os.path.join(self.tensor_dir, str(self.continual_step), 'test_tensor.pth'))
+
+    def train_dataloader(self):
+        return DataLoader(self.chemu_train, batch_size=self.batch_size, shuffle=True,
+                          num_workers=8, prefetch_factor=2, drop_last=True,)
+                        #   persistent_workers=True, pin_memory=True,)
+
+    def val_dataloader(self):
+        return DataLoader(self.chemu_test, batch_size=self.batch_size,
+                          num_workers=8, prefetch_factor=2, drop_last=False,)
+                        #   persistent_workers=True, pin_memory=True,)
+
+    def test_dataloader(self):
+        return DataLoader(self.chemu_test, batch_size=self.batch_size,
+                          num_workers=8, prefetch_factor=2, drop_last=False,)
+                        #   persistent_workers=True, pin_memory=True,)
 
     def on_train_batch_end(self, out, batch, batch_idx) -> None:
         # DO NOT TOUCH
@@ -159,13 +245,41 @@ class EncoderNERModel(pl.LightningModule):
         self.f1.reset()
         self.confusion_matrix.reset()
 
+        #get current epoch
+        current_epoch = self.trainer.current_epoch
+
+        #check if we need to change the dataset
+        if current_epoch+1 in self.continual_epochs_schedule and current_epoch > 5:
+            self.continual_step += 1
+            self.setup_test()
+
+            current_classes = self.continual_classes_schedule[self.continual_step]
+
+            # set weight of everything to 1 and class 2 to 0.0125
+            self.weights = torch.ones(current_classes).cuda()
+            self.weights[0] = 0.125
+
+            self.criterion = nn.CrossEntropyLoss(weight=self.weights, reduction='none', ignore_index=-100,
+                                                label_smoothing=0.1,)
+
+            self.f1 = torchmetrics.F1Score(num_classes=current_classes, task="multiclass", average=None, ).cuda()
+            self.f1_micro = torchmetrics.F1Score(num_classes=current_classes, task="multiclass", average='micro', ).cuda()
+            
+            self.confusion_matrix = torchmetrics.ConfusionMatrix(num_classes=current_classes, task="multiclass", normalize='true').cuda()
+
+            # Set teacher as a frozen deep copy of the current model
+            self.teacher = copy.deepcopy(self.model)
+            self.teacher = self.teacher.eval()
+            for param in self.teacher.parameters():
+                param.requires_grad = False
+
+
     def log_confusion_matrix(self, fig, ax, stage):
         # Convert confusion matrix to a plot
         # fig, ax = plt.subplots(figsize=(12, 12))
         # cax = ax.matshow(conf_matrix.cpu().numpy())
         # plt.title(f'Confusion matrix for {stage}')
         # fig.colorbar(cax)
-
         # Log to WandB
         wandb.log({f'{stage}_confusion_matrix': [wandb.Image(fig)]})
 
@@ -196,7 +310,7 @@ class EncoderNERModel(pl.LightningModule):
         # get num epochs from trainer
         num_epochs = self.trainer.max_epochs
 
-        optimizer = torch.optim.AdamW(self.trainer.model.parameters(), lr=1e-4, weight_decay=0.1, )  # fused=True)
+        optimizer = torch.optim.AdamW(self.trainer.model.parameters(), lr=1e-4, weight_decay=0.01, )  # fused=True)
         # optimizer = Lion(self.trainer.model.parameters(), lr=3e-4/3, weight_decay=0.1*15, use_triton=True)
         scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=1e-3,
                                                         total_steps=self.trainer.estimated_stepping_batches,

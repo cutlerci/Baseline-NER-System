@@ -47,7 +47,7 @@ if __name__ == '__main__':
                             save_last=True, every_n_epochs=1, auto_insert_metric_name=True,
                             filename='{epoch}-{step}-{valid_loss:.2f}-{train_loss:.2f}')
 
-    ChEMU = ChEMUDataModule("ChEMU2023_FOR_CLASS/ChEMU2023_FOR_CLASS", model.batch_size, True, False, CL_STEP)
+    # ChEMU = ChEMUDataModule("ChEMU2023_FOR_CLASS/ChEMU2023_FOR_CLASS", model.batch_size, True, False, CL_STEP)
 
     accumulator = GradientAccumulationScheduler(scheduling=schedule)
     lr_monitor = LearningRateMonitor(logging_interval='step')
@@ -55,12 +55,12 @@ if __name__ == '__main__':
     wandb_logger = WandbLogger(project='ner_bert', log_model=True)
     # wandb_logger.watch(model, log_freq = 100, log_graph=False)
 
-    trainer = pl.Trainer(accelerator="gpu", devices = 1, precision="16-mixed", enable_checkpointing=True,
-                         gradient_clip_val=1, max_epochs=1000, check_val_every_n_epoch=1, num_sanity_val_steps=2, default_root_dir='./checkpoints/',
+    trainer = pl.Trainer(accelerator="gpu", devices = 1, precision="bf16-mixed", enable_checkpointing=True, reload_dataloaders_every_n_epochs=10,
+                         gradient_clip_val=1, max_epochs=200, check_val_every_n_epoch=1, num_sanity_val_steps=2, default_root_dir='./checkpoints/',
                          log_every_n_steps=1, logger=wandb_logger, callbacks=[lr_monitor, accumulator, chkpt,])
 
-    trainer.fit(model, datamodule=ChEMU)
-    trainer.validate(model, datamodule=ChEMU)
+    trainer.fit(model,)
+    # trainer.validate(model, datamodule=ChEMU)
     # trainer.predict(model, datamodule=ChEMU)
 
 
