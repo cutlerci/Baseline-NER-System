@@ -31,7 +31,6 @@ class ChEMUDataModule(pl.LightningDataModule):
         self.create_tensors = create_tensors
         self.continual_step = continual_step
 
-
     def prepare_data(self):
         # Set create_tensors to false after the tensors have been saved on your machine to avoid preprocessing again
         if self.create_tensors:
@@ -63,17 +62,4 @@ class ChEMUDataModule(pl.LightningDataModule):
         return DataLoader(self.chemu_test, batch_size=self.batch_size,
                           num_workers=8, prefetch_factor=2, drop_last=True,
                           persistent_workers=True, pin_memory=True,)
-
-    # def predict_dataloader(self):
-    #   return DataLoader(self.chemu_predict, batch_size=self.batch_size,
-    #                    num_workers=8, prefetch_factor=2, drop_last=True,
-    #                   persistent_workers=True, pin_memory=True, )
-
-    #def state_dict(self):
-    #    # track whatever you want here
-    #    state = {"current_train_batch_index": self.current_train_batch_index}
-    #    return state
-
-    #def load_state_dict(self, state_dict):
-    #    # restore the state based on what you tracked in (def state_dict)
-    #    self.current_train_batch_index = state_dict["current_train_batch_index"]
+    
