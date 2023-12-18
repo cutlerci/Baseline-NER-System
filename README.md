@@ -87,18 +87,15 @@ This file imports the model and dataset classes from the other files in the repo
 ## Data 
 
 ### Counts by Tag:
-| Label                 | Count  | | Label                 | Count  | | Label                 | Count  |
-|-----------------------|--------|-|-----------------------|--------|-|-----------------------|--------|
-| O                     | 103893 | | I-YIELD_OTHER         | 2275   | | B-YIELD_OTHER         | 1060   |
-| I-REACTION_PRODUCT    | 37342  | | I-REAGENT_CATALYST    | 2123   | | B-TIME                | 1058   |
-| I-STARTING_MATERIAL   | 22890  | | B-REACTION_PRODUCT    | 1984   | | B-YIELD_PERCENT       | 954    |
-| I-OTHER_COMPOUND      | 6569   | | B-STARTING_MATERIAL   | 1737   | | B-EXAMPLE_LABEL       | 884    |
-| B-OTHER_COMPOUND      | 4460   | | B-TEMPERATURE         | 1508   | | I-SOLVENT             | 450    |
-| B-REACTION_STEP       | 3798   | | I-YIELD_PERCENT       | 1342   | | I-EXAMPLE_LABEL       | 149    |
-| B-WORKUP              | 3039   | | B-REAGENT_CATALYST    | 1264   | | I-WORKUP              | 19     |
-| I-TEMPERATURE         | 2292   | | I-TIME                | 1159   | | I-REACTION_STEP       | 11     |
-| B-SOLVENT             | 1130   | |                       |        | |                       |        |
-
+| Label                 | Count  | | Label                 | Count  |
+|-----------------------|--------|-|-----------------------|--------|
+| O                     | 179973 | | REAGENT_CATALYST      | 5517   |
+| REACTION_PRODUCT      | 64307  | | WORKUP                | 5043   |
+| STARTING_MATERIAL     | 40262  | | YIELD_PERCENT         | 3763   |
+| OTHER_COMPOUND        | 18568  | | TIME                  | 3690   |
+| REACTION_STEP         | 6213   | | SOLVENT               | 2511   |
+| TEMPERATURE           | 6208   | | EXAMPLE_LABEL         | 1686   |
+| YIELD_OTHER           | 5614   | |                       |        |
 
 
 ### Counts by Tag as Bar Graph:
