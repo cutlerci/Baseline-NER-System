@@ -1,20 +1,20 @@
 # BERTICLE
 
-<img src="./BERTICLE-Logo.png" alt="BERTICLE Logo" align="right" width="400"/>
-
+<img src="./figures/BERTICLE-Logo.png" alt="BERTICLE Logo" align="right" width="400"/><br><br><br><br>
 The ChEMU lab series is an annual competition run by Cheminformatics Elsevier Melbourne University lab. The ChEMU shared NER task seeks to identify chemical compounds along with their roles in a reaction.
 
-This model is a continual learning BERT model for NER.
+This model is a continual learning BERT model that performs class-incremental NER on the ChEMU dataset.
 
 **BERT-I**nspired **C**ontinual **L**earning for **E**ntity-recognition (**BERTICLE**)
 
 ## Model
-![BERT diagram](https://github.com/cutlerci/Baseline-NER-System/assets/59939625/a378456e-f1ef-42f2-bc40-d3e2f0acd21f)
+![BERT diagram](./figures/base_bert.PNG)
 The model performs student-teacher continual learning. A teacher model is first
 trained to perform NER on a set of entity classes. In a series of steps that follow, a student model then learns new 
 classes while trying to replicate the predictions of the teacher on the old classes. At the end of each step, the
 student model becomes the new teacher, takes on a new student (a clone of itself), and repeats the process. 
 
+![student teacher model diagram](./figures/student_teacher.PNG)
 
 
 ## Installation and Usage Instructions
@@ -102,7 +102,7 @@ This file imports the model and dataset classes from the other files in the repo
 
 
 ### Counts by Tag as Bar Graph:
-![label_graph](https://github.com/cutlerci/Baseline-NER-System/assets/59939625/6a2dbb9b-673e-4768-8cb4-610cf81b3e6d)
+![label_graph](./figures/IOB_stripped_ChEMU.png)
 
 
 ## References: 
