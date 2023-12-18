@@ -4,9 +4,16 @@
 
 The ChEMU lab series is an annual competition run by Cheminformatics Elsevier Melbourne University lab. The ChEMU shared NER task seeks to identify chemical compounds along with their roles in a reaction.
 
-This model is a standard BERT model intended to be used as a baseline against future work in continual learning for NER.
+This model is a continual learning BERT model for NER.
 
 **BERT-I**nspired **C**ontinual **L**earning for **E**ntity-recognition (**BERTICLE**)
+
+## Model
+![BERT diagram](https://github.com/cutlerci/Baseline-NER-System/assets/59939625/a378456e-f1ef-42f2-bc40-d3e2f0acd21f)
+The model performs student-teacher continual learning. A teacher model is first
+trained to perform NER on a set of entity classes. In a series of steps that follow, a student model then learns new 
+classes while trying to replicate the predictions of the teacher on the old classes. At the end of each step, the
+student model becomes the new teacher, takes on a new student (a clone of itself), and repeats the process. 
 
 
 
@@ -75,40 +82,6 @@ This file imports the model and dataset classes from the other files in the repo
 
 
 
-## Project Description  
-Named entity recognition is a sequence classification problem, we seek to tag a sequence of words in a sentence rather than classify the sentence in some way. Entities in this dataset are named according to classes such as "reaction step" and "reaction product." 
-
-Our goal is to label words correctly as being members of these classes, in order to glean information from sets of chemistry patents that are too large for a human to read. 
-## Model
-![BERT diagram](https://github.com/cutlerci/Baseline-NER-System/assets/59939625/a378456e-f1ef-42f2-bc40-d3e2f0acd21f)
-## Method 
-
-### Preprocessing and Tokenization
-
-1. **Dataset loading:**
-    - The ChEMU data is loaded in the BRAT format. We read each entry and convert a full folder into a dataframe using pandas. An individual folder is read and a dataframe created for each of a pre-split train, dev, and test set. 
-
-2. **Sentence Labeling:**
-    - Individual sentences are labeled with a unique sentence index. This allows us to concatenate sentences together later if we wish to provide additional context by increasing our input size closer to BERT's 512 token limit.
-
-
-3. **Tokenizing with BERT Tokenizer:**
-    - Each word in a sentence is passed through the BERT tokenizer individually.
-    - If the tokenizer splits a word into multiple sub-tokens or "subwords", the label originally associated with the whole word is extended to all of its sub-tokens. This ensures label consistency across tokens and sub-tokens.
-    - We use heuristics to transform 'B' labels (Beginning) into 'I' labels (Inside) for the subtokens of a word that was initially tagged with an 'I.'
-
-### Training
-
-4. **Passing the tokens to BERT:**
-    - The tokenized sentences are fed into the BERT model.
-    - The model is tasked with predicting the sequence labels for each token in the input.
-
-5. **Loss Calculation and Backpropagation:**
-    - Once the model outputs its predictions, these are compared against the extended label list created during preprocessing.
-    - Based on the difference between predicted and true labels, a loss value is calculated and backpropagated through the BERT model to adjust its weights.
-
-
-
 
 
 ## Data 
@@ -131,28 +104,7 @@ Our goal is to label words correctly as being members of these classes, in order
 ### Counts by Tag as Bar Graph:
 ![label_graph](https://github.com/cutlerci/Baseline-NER-System/assets/59939625/6a2dbb9b-673e-4768-8cb4-610cf81b3e6d)
 
-## Results:
-| B-Tag Metric          | F1 result           | | I-Tag Metric               | F1 result           |
-|-----------------------|---------------------|-|----------------------------|---------------------|
-| B-OTHER_COMPOUND      | 0.95339435338974    | | I-OTHER_COMPOUND           | 0.8769268989562988  |
-| B-REACTION_PRODUCT    | 0.9061488509178162  | | I-REACTION_PRODUCT         | 0.9610147476196289  |
-| B-REACTION_STEP       | 0.9314526319503784  | | I-REACTION_STEP            | 0.5652173757553101  |
-| B-REAGENT_CATALYST    | 0.8810086846351624  | | I-REAGENT_CATALYST         | 0.8906823396682739  |
-| B-SOLVENT             | 0.9333333373069763  | | I-SOLVENT                  | 0.9580487608909607  |
-| B-STARTING_MATERIAL   | 0.8940290212631226  | | I-STARTING_MATERIAL        | 0.9719192385673523  |
-| B-TEMPERATURE         | 0.9774339199066162  | | I-TEMPERATURE              | 0.971531331539154   |
-| B-TIME                | 0.9861111044883728  | | I-TIME                     | 0.9834087491035461  |
-| B-WORKUP              | 0.9008797407150269  | | I-WORKUP                   | 0.8847235441207886  |
-| B-YIELD_OTHER         | 0.983259916305542   | | I-YIELD_OTHER              | 0.9802817106246948  |
-| B-YIELD_PERCENT       | 0.9939879775047302  | | I-YIELD_PERCENT            | 0.9808374643325806  |
-| B-EXAMPLE_LABEL       | 0.9460317492485046  | |                            |                     |
-| O                     | 0.9860473871231079  | |                            |                     |
-|                       |                     | |                            |                     |
-| test_avg_f1           | 0.9244508147239685  | |                            |                     |
-| test_f1               | 0.9643142819404602  | |                            |                     |
 
-## Future work: 
-We would like to flesh out the concatenation of sentences from a paragraph to provide context for shorter samples cut off from BERT's 512 token limit. There are cases where only one sentence of a paragraph will remain after this concatenation. We are interested in any method to provide additional context to those orphaned sentences in a way that would not skew our results by backpropogating loss from sentence duplicates during training, or unfairly crediting our model with redundant correct predictions during testing. 
 ## References: 
 J. Devlin, M.-W. Chang, K. Lee, and K. Toutanova, “Bert: Pre-training of deep bidirectional transformers for language understanding,” arXiv preprint arXiv:1810.04805, 2018.
 
